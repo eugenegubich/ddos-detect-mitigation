@@ -18,10 +18,34 @@ def get_conntrack_usage_percent():
     percentage = (current_conntrack / max_conntrack) * 100
     return percentage
 
-def connect_ip_parse():
-    # get conntrack 
+def subnet_to_ips(subnet):
+    # subnet with mask to list of ips
+    ips = []
+    ip, mask = subnet.split("/")
+    ip = ip.split(".")
+    mask = int(mask)
+    for i in range(2**(32-mask)):
+        ip[3] = str(i)
+        ips.append(".".join(ip))
+    return ips
 
+def check_dport(port):
+    if re.search(r"dport=(\d+)", line).group(1) == port:
+        return True
+
+def connect_ip_parse(subnet, port):
+    connected_ips = []
+    with open("/proc/net/nf_conntrack", r) as f:
+        conntrack_table = f.read()
+    for line in conntrack_table.split("\n"):
+        if 'tcp' in line and check_dport(port):
+            ip = re.search(r"dst=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", line).group(1)
+            if ip in subnet_to_ips(subnet):
+                connected_ips.append(ip)
+    return connected_ips
+                
 def netplan_disable_ip():
+    # dummy 
 
 if __name__ == "__main__":
     dotenv.load_dotenv()
