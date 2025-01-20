@@ -19,7 +19,6 @@ def get_conntrack_usage_percent():
     return percentage
 
 def subnet_to_ips(subnet):
-    # subnet with mask to list of ips
     ips = []
     ip, mask = subnet.split("/")
     ip = ip.split(".")
@@ -45,7 +44,8 @@ def connect_ip_parse(subnet, port):
     return connected_ips
                 
 def netplan_disable_ip():
-    # dummy 
+    pass
+
 
 if __name__ == "__main__":
     dotenv.load_dotenv()
