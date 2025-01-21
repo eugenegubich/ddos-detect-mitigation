@@ -42,6 +42,15 @@ def connect_ip_parse(subnet, port):
             if ip in subnet_to_ips(subnet):
                 connected_ips.append(ip)
     return connected_ips
+
+def most_connected_ip(connected_ips):
+    ip_count = {}
+    for ip in connected_ips:
+        if ip in ip_count:
+            ip_count[ip] += 1
+        else:
+            ip_count[ip] = 1
+    return max(ip_count, key=ip_count.get)
                 
 def netplan_disable_ip():
     pass
