@@ -52,9 +52,19 @@ def most_connected_ip(connected_ips):
             ip_count[ip] = 1
     return max(ip_count, key=ip_count.get)
                 
-def netplan_disable_ip():
-    pass
+def netplan_disable_ip(conf_path, address):
+    pattern = re.compile(rf"(\s*- {address}/\d+)")
+    with open(conf_path, 'r') as file:
+        content = file.read()
+    def replacer(match):
+        return f"# {match.group(0)}"
+    updated_content = pattern.sub(replacer, content)
+    with open(conf_path, 'w') as file:
+        file.write(updated_content)
+    os.system("netplan apply")
 
 
 if __name__ == "__main__":
     dotenv.load_dotenv()
+    if get_conntrack_usage_percent() > os.getenv("THRESHOLD"):
+        most_connected_ip = most_connected_ip(connect_ip_parse(os.getenv("LOCAL_IPS_SUBNET"), os.getenv("LOCAL_PORT")))
