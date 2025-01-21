@@ -5,10 +5,19 @@ import re
 import subprocess
 import requests
 import json
+import time
 
 def tg_send_alert(message, token, chat_id):
-    url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}"
-    requests.get(url)
+    try:
+        attempts = 0
+        while attempts < 200:
+            response = requests.get(f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}")
+            if response.status_code == 200:
+                break
+            attempts += 1
+            time.sleep(1)
+    except Exception as e:
+        print(f"Error sending alert: {e}")
 
 def get_conntrack_usage_percent():
     with open("/proc/sys/net/netfilter/nf_conntrack_max", "r") as f:
@@ -68,3 +77,6 @@ if __name__ == "__main__":
     dotenv.load_dotenv()
     if get_conntrack_usage_percent() > os.getenv("THRESHOLD"):
         most_connected_ip = most_connected_ip(connect_ip_parse(os.getenv("LOCAL_IPS_SUBNET"), os.getenv("LOCAL_PORT")))
+        netplan_disable_ip(os.getenv("NETPLAN_CONF_PATH"), most_connected_ip)
+        message = f"Disabled {most_connected_ip}, host {os.getenv('HOSTNAME')}"
+        tg_send_alert(message, os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID"))
