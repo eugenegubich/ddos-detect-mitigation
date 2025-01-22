@@ -6,6 +6,7 @@ import subprocess
 import requests
 import json
 import time
+import socket
 
 def tg_send_alert(message, token, chat_id):
     try:
@@ -78,5 +79,6 @@ if __name__ == "__main__":
     if get_conntrack_usage_percent() > os.getenv("THRESHOLD"):
         most_connected_ip = most_connected_ip(connect_ip_parse(os.getenv("LOCAL_IPS_SUBNET"), os.getenv("LOCAL_PORT")))
         netplan_disable_ip(os.getenv("NETPLAN_CONF_PATH"), most_connected_ip)
-        message = f"Disabled {most_connected_ip}, host {os.getenv('HOSTNAME')}"
+        hostname = socket.gethostname()
+        message = f"Disabled {most_connected_ip}, host {hostname}"
         tg_send_alert(message, os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID"))
