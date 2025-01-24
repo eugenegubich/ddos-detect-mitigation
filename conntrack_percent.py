@@ -32,7 +32,7 @@ def check_dport(port):
 
 def connect_ip_parse(subnet, port):
     connected_ips = []
-    with open("/proc/net/nf_conntrack", r) as f:
+    with open("/proc/net/nf_conntrack", "r") as f:
         conntrack_table = f.read()
     for line in conntrack_table.split("\n"):
         if 'tcp' in line and check_dport(port):
