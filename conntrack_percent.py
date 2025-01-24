@@ -47,4 +47,5 @@ def connect_ip_parse(subnet, port):
 print(get_conntrack_usage_percent())
 
 most_connected_ip = most_connected_ip(connect_ip_parse("138.199.240.0/24", "443"))
+print(connect_ip_parse("138.199.240.0/24", "443"))
 print(most_connected_ip)
