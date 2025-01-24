@@ -45,14 +45,14 @@ def connect_ip_parse(subnet, port):
     return connected_ips
 
 def netplan_disable_ip(conf_path, address):
-    pattern = re.compile(rf"(\s*- {address}/\d+)")
     with open(conf_path, 'r') as file:
-        content = file.read()
-    def replacer(match):
-        return f"  #-{match.group(0)[2:]}"
-    updated_content = pattern.sub(replacer, content)
-    with open(conf_path, 'w') as file:
-        file.write(updated_content)
+            lines = file.readlines()
+        with open(conf_path, 'w') as file:
+            for line in lines:
+                if address in line:
+                    file.write('# ' + line)
+                else:
+                    file.write(line)
 
 print(get_conntrack_usage_percent())
 
