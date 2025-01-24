@@ -1,3 +1,6 @@
+import re
+import time
+
 
 def get_conntrack_usage_percent():
     with open("/proc/sys/net/netfilter/nf_conntrack_max", "r") as f:
