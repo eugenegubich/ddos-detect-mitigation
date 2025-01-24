@@ -49,7 +49,7 @@ def netplan_disable_ip(conf_path, address):
     with open(conf_path, 'r') as file:
         content = file.read()
     def replacer(match):
-        return f"# {match.group(0)}"
+        return f"  #- {match.group(0)}"
     updated_content = pattern.sub(replacer, content)
     with open(conf_path, 'w') as file:
         file.write(updated_content)
