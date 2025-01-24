@@ -44,7 +44,18 @@ def connect_ip_parse(subnet, port):
                 connected_ips.append(ip)
     return connected_ips
 
+def netplan_disable_ip(conf_path, address):
+    pattern = re.compile(rf"(\s*- {address}/\d+)")
+    with open(conf_path, 'r') as file:
+        content = file.read()
+    def replacer(match):
+        return f"# {match.group(0)}"
+    updated_content = pattern.sub(replacer, content)
+    with open(conf_path, 'w') as file:
+        file.write(updated_content)
+
 print(get_conntrack_usage_percent())
 
 most_connected_ip = most_connected_ip(connect_ip_parse("138.199.240.0/24", "443"))
 print(most_connected_ip)
+netplan_disable_ip("/opt/scripts/ddos-detect-mitigation/01-netcfg.yaml", most_connected_ip)
