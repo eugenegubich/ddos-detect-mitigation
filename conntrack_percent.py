@@ -47,12 +47,12 @@ def connect_ip_parse(subnet, port):
 def netplan_disable_ip(conf_path, address):
     with open(conf_path, 'r') as file:
             lines = file.readlines()
-        with open(conf_path, 'w') as file:
-            for line in lines:
-                if address in line:
-                    file.write('# ' + line)
-                else:
-                    file.write(line)
+    with open(conf_path, 'w') as file:
+        for line in lines:
+            if address in line:
+                file.write('# ' + line)
+            else:
+                file.write(line)
 
 print(get_conntrack_usage_percent())
 
