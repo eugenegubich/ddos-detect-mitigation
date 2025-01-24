@@ -29,7 +29,7 @@ def subnet_to_ips(subnet):
         ips.append(".".join(ip))
     return ips
 
-def check_dport(port):
+def check_dport(line, port):
     if re.search(r"dport=(\d+)", line).group(1) == port:
         return True
 
@@ -38,7 +38,7 @@ def connect_ip_parse(subnet, port):
     with open("/proc/net/nf_conntrack", "r") as f:
         conntrack_table = f.read()
     for line in conntrack_table.split("\n"):
-        if 'tcp' in line and check_dport(port):
+        if 'tcp' in line and check_dport(line, port):
             ip = re.search(r"dst=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", line).group(1)
             if ip in subnet_to_ips(subnet):
                 connected_ips.append(ip)
