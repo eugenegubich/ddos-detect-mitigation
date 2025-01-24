@@ -63,14 +63,14 @@ def most_connected_ip(connected_ips):
     return max(ip_count, key=ip_count.get)
                 
 def netplan_disable_ip(conf_path, address):
-    pattern = re.compile(rf"(\s*- {address}/\d+)")
     with open(conf_path, 'r') as file:
-        content = file.read()
-    def replacer(match):
-        return f"# {match.group(0)}"
-    updated_content = pattern.sub(replacer, content)
+            lines = file.readlines()
     with open(conf_path, 'w') as file:
-        file.write(updated_content)
+        for line in lines:
+            if address in line:
+                file.write('# ' + line)
+            else:
+                file.write(line)
     os.system("netplan apply")
 
 
