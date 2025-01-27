@@ -13,6 +13,7 @@ def get_tg_api_ip():
     return ip_address
 
 def tg_send_alert(message, token, chat_id, tg_api_ip):
+    time.sleep(20)
     try:
         attempts = 0
         while attempts < 200:
