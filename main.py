@@ -16,7 +16,7 @@ def tg_send_alert(message, token, chat_id, tg_api_ip):
     try:
         attempts = 0
         while attempts < 200:
-            response = requests.get(f"https://{tg_api_ip}}/bot{token}/sendMessage?chat_id={chat_id}&text={message}", headers={"Host": "api.telegram.org"})
+            response = requests.get(f"https://{tg_api_ip}/bot{token}/sendMessage?chat_id={chat_id}&text={message}", headers={"Host": "api.telegram.org"})
             if response.status_code == 200:
                 break
             attempts += 1
