@@ -38,16 +38,16 @@ def subnet_to_ips(subnet):
         ips.append(".".join(ip))
     return ips
 
-def check_dport(port):
+def check_dport(line, port):
     if re.search(r"dport=(\d+)", line).group(1) == port:
         return True
 
 def connect_ip_parse(subnet, port):
     connected_ips = []
-    with open("/proc/net/nf_conntrack", r) as f:
+    with open("/proc/net/nf_conntrack", "r") as f:
         conntrack_table = f.read()
     for line in conntrack_table.split("\n"):
-        if 'tcp' in line and check_dport(port):
+        if 'tcp' in line and check_dport(line, port):
             ip = re.search(r"dst=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", line).group(1)
             if ip in subnet_to_ips(subnet):
                 connected_ips.append(ip)
@@ -63,14 +63,14 @@ def most_connected_ip(connected_ips):
     return max(ip_count, key=ip_count.get)
                 
 def netplan_disable_ip(conf_path, address):
-    pattern = re.compile(rf"(\s*- {address}/\d+)")
     with open(conf_path, 'r') as file:
-        content = file.read()
-    def replacer(match):
-        return f"# {match.group(0)}"
-    updated_content = pattern.sub(replacer, content)
+            lines = file.readlines()
     with open(conf_path, 'w') as file:
-        file.write(updated_content)
+        for line in lines:
+            if address in line:
+                file.write('# ' + line)
+            else:
+                file.write(line)
     os.system("netplan apply")
 
 
@@ -80,5 +80,5 @@ if __name__ == "__main__":
         most_connected_ip = most_connected_ip(connect_ip_parse(os.getenv("LOCAL_IPS_SUBNET"), os.getenv("LOCAL_PORT")))
         netplan_disable_ip(os.getenv("NETPLAN_CONF_PATH"), most_connected_ip)
         hostname = socket.gethostname()
-        message = f"Disabled {most_connected_ip}, host {hostname}"
+        message = f"Disabled {most_connected_ip}, host {hostname}, conntrack usage {get_conntrack_usage_percent()}%"
         tg_send_alert(message, os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID"))
