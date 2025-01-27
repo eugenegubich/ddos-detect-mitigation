@@ -76,7 +76,7 @@ def netplan_disable_ip(conf_path, address):
 
 if __name__ == "__main__":
     dotenv.load_dotenv()
-    if get_conntrack_usage_percent() > os.getenv("THRESHOLD"):
+    if get_conntrack_usage_percent() > int(os.getenv("THRESHOLD")):
         most_connected_ip = most_connected_ip(connect_ip_parse(os.getenv("LOCAL_IPS_SUBNET"), os.getenv("LOCAL_PORT")))
         netplan_disable_ip(os.getenv("NETPLAN_CONF_PATH"), most_connected_ip)
         hostname = socket.gethostname()
