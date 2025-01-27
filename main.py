@@ -8,11 +8,15 @@ import json
 import time
 import socket
 
-def tg_send_alert(message, token, chat_id):
+def get_tg_api_ip():
+    ip_address = socket.gethostbyname("api.telegram.org")
+    return ip_address
+
+def tg_send_alert(message, token, chat_id, tg_api_ip):
     try:
         attempts = 0
         while attempts < 200:
-            response = requests.get(f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}")
+            response = requests.get(f"https://{tg_api_ip}}/bot{token}/sendMessage?chat_id={chat_id}&text={message}", headers={"Host": "api.telegram.org"})
             if response.status_code == 200:
                 break
             attempts += 1
@@ -77,8 +81,9 @@ def netplan_disable_ip(conf_path, address):
 if __name__ == "__main__":
     dotenv.load_dotenv(dotenv.find_dotenv())
     if get_conntrack_usage_percent() > int(os.getenv("THRESHOLD")):
+        tg_api_ip = get_tg_api_ip()
         most_connected_ip = most_connected_ip(connect_ip_parse(os.getenv("LOCAL_IPS_SUBNET"), os.getenv("LOCAL_PORT")))
         netplan_disable_ip(os.getenv("NETPLAN_CONFIG_PATH"), most_connected_ip)
         hostname = socket.gethostname()
         message = f"Disabled {most_connected_ip}, host {hostname}, conntrack usage {get_conntrack_usage_percent()}%"
-        tg_send_alert(message, os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID"))
+        tg_send_alert(message, os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID"), tg_api_ip)
