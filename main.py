@@ -68,8 +68,8 @@ def most_connected_ip(connected_ips):
         else:
             ip_count[ip] = 1
     max_ip = max(ip_count, key=ip_count.get)
-    print(f"Most connected IP: {max_ip}, connections: {ip_count[max_ip]}")
-    return max_ip
+    result = [max_ip, ip_count[max_ip]]
+    return result
                 
 def netplan_disable_ip(conf_path, address):
     with open(conf_path, 'r') as file:
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     if get_conntrack_usage_percent() > int(os.getenv("THRESHOLD")):
         tg_api_ip = get_tg_api_ip()
         most_connected_ip = most_connected_ip(connect_ip_parse(os.getenv("LOCAL_IPS_SUBNET"), os.getenv("LOCAL_PORT")))
-        netplan_disable_ip(os.getenv("NETPLAN_CONFIG_PATH"), most_connected_ip)
+        netplan_disable_ip(os.getenv("NETPLAN_CONFIG_PATH"), most_connected_ip[0])
         hostname = socket.gethostname()
-        message = f"Disabled {most_connected_ip}, host {hostname}, conntrack usage {get_conntrack_usage_percent()}%"
+        message = f"Disabled {most_connected_ip[0]} with {most_connected_ip[1]} connections, host {hostname}, conntrack usage {get_conntrack_usage_percent()}%"
         tg_send_alert(message, os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID"), tg_api_ip)
