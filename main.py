@@ -67,7 +67,9 @@ def most_connected_ip(connected_ips):
             ip_count[ip] += 1
         else:
             ip_count[ip] = 1
-    return max(ip_count, key=ip_count.get)
+    max_ip = max(ip_count, key=ip_count.get)
+    print(f"Most connected IP: {max_ip}, connections: {ip_count[max_ip]}")
+    return max_ip
                 
 def netplan_disable_ip(conf_path, address):
     with open(conf_path, 'r') as file:
