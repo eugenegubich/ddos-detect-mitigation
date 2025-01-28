@@ -53,9 +53,11 @@ def connect_ip_parse(subnet, port):
         conntrack_table = f.read()
     for line in conntrack_table.split("\n"):
         if 'tcp' in line and check_dport(line, port):
-            ip = re.search(r"dst=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", line).group(1)
-            if ip in subnet_to_ips(subnet):
-                connected_ips.append(ip)
+            ip_re = re.search(r"dst=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", line)
+            if ip_re:
+                ip = ip_re.group(1)
+                if ip in subnet_to_ips(subnet):
+                    connected_ips.append(ip)
     return connected_ips
 
 def most_connected_ip(connected_ips):
